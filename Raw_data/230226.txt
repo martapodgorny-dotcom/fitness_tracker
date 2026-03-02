@@ -1,0 +1,9 @@
+Set	Exercise Name	Time	Rest	Reps	Weight	Volume
+1	Leg Curl	1:18.2	2:09.1	10	29 kg	290 kg
+2	Leg Curl	0:57.6	2:54.7	9	29 kg	261 kg
+3	Leg Curl	1:12.0	3:37.5	10	29 kg	290 kg
+4	Leg Curl	2:02.3	2:37.4	15	29 kg	435 kg
+5	Weighted Leg Extensions	1:43.4	2:38.4	12	36 kg	432 kg
+6	Weighted Leg Extensions	1:06.0	2:53.0	12	36 kg	432 kg
+7	Weighted Leg Extensions	1:17.9	1:14.6	15	36 kg	540 kg
+8	Band-assisted Chin-up	1:11.5	0:59.1	4	Bodyweight	Bodyweight

@@ -1,0 +1,22 @@
+Set	Exercise Name	Time	Rest	Reps	Weight	Volume
+1	Weighted Leg Curl	1:02.2	1:52.6	10	23 kg	230 kg
+2	Weighted Leg Curl	0:12.2	0:51.5	10	23 kg	230 kg
+3	Weighted Leg Curl	0:47.1	1:03.2	10	23 kg	230 kg
+4	Weighted Leg Curl	0:41.8	2:05.0	10	23 kg	230 kg
+5	Weighted Leg Extensions	0:37.9	0:45.7	8	23 kg	184 kg
+6	Weighted Leg Extensions	0:36.1	1:00.5	8	23 kg	184 kg
+7	Weighted Leg Extensions	0:34.8	0:58.7	8	23 kg	184 kg
+8	Weighted Leg Extensions	0:36.1	1:41.2	8	23 kg	184 kg
+9	Leg Press	0:37.2	1:02.7	10	65 kg	650 kg
+10	Leg Press	0:37.2	1:42.1	10	65 kg	650 kg
+11	Leg Press	0:32.7	1:30.8	10	65 kg	650 kg
+12	Leg Press	0:37.1	4:03.6	10	65 kg	650 kg
+13	Sandbag Around the World	0:42.4	1:07.6	10	12 kg	120 kg
+14	Sandbag Around the World	0:42.8	0:54.3	10	12 kg	120 kg
+15	Sandbag Around the World	0:42.0	0:59.5	10	12 kg	120 kg
+16	Sandbag Around the World	0:39.2	1:00.8	10	12 kg	120 kg
+17	Sandbag Around the World	0:38.2	1:55.7	10	12 kg	120 kg
+18	Sandbag Around the World	0:44.0	1:21.9	10	12 kg	120 kg
+19	Kettlebell Squat	1:00	0:00	20	12 kg	240 kg
+20	Kettlebell Squat	1:00	0:00	20	12 kg	240 kg
+21	Kettlebell Squat	1:00	0:00	20	16 kg	320 kg

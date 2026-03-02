@@ -1,0 +1,15 @@
+Set	Exercise Name	Time	Rest	Reps	Weight	Volume
+1	Leg Press	1:17.4	4:07.1	15	69 kg	1035 kg
+2	Leg Press	1:10.1	5:11.5	20	69 kg	1380 kg
+3	Leg Press	1:13.3	3:49.4	20	69 kg	1380 kg
+4	Leg Press	1:04.2	2:51.7	15	75 kg	1125 kg
+5	Standing Cable Hip Abduction	0:50.4	3:04.9	10	41 kg	410 kg
+6	Standing Cable Hip Abduction	1:02.3	1:40.5	10	41 kg	410 kg
+7	Weighted Sliding Hip Adduction	0:41.9	2:52.8	10	41 kg	410 kg
+8	Weighted Sliding Hip Adduction	0:53.8	2:30.2	10	41 kg	410 kg
+9	Weighted Leg Extensions	1:16.1	2:46.1	10	32 kg	320 kg
+10	Weighted Leg Extensions	1:11.6	2:36.0	12	32 kg	384 kg
+11	Weighted Leg Extensions	1:13.0	4:30.1	13	32 kg	416 kg
+12	Hamstring Curl	0:51.9	3:31.6	10	27 kg	270 kg
+13	Hamstring Curl	1:30.5	3:09.7	11	27 kg	297 kg
+14	Hamstring Curl	1:05.1	9:11.2	10	27 kg	270 kg

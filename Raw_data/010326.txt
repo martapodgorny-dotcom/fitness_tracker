@@ -1,0 +1,19 @@
+Set	Exercise Name	Time	Rest	Reps	Weight	Volume
+1	Squat	1:19.4	0:09.4	20	5 kg	100 kg
+2	Lunge	1:06.4	3:00.3	20	5 kg	100 kg
+3	Squat	1:00.1	0:09.8	7	5 kg	35 kg
+4	Lunge	1:00.9	3:30.9	7	5 kg	35 kg
+5	Squat	2:26.0	12:28	40	5 kg	200 kg
+6	Incline Barbell Bench Press	1:14.5	3:52.1	10	14 kg	140 kg
+7	Incline Barbell Bench Press	1:19.9	3:58.2	12	14 kg	168 kg
+8	Incline Barbell Bench Press	1:14.0	3:53.8	15	14 kg	210 kg
+9	Incline Barbell Bench Press	1:02.2	2:40.6	8	16 kg	128 kg
+10	Hanging Leg Raise	0:25.4	2:44.6	8	Bodyweight	Bodyweight
+11	Hanging Leg Raise	0:39.2	3:25.6	6	Bodyweight	Bodyweight
+12	Hanging Leg Raise	0:25.3	1:28.2	8	Bodyweight	Bodyweight
+13	Curl	0:44.7	2:28.0	11	14 kg	154 kg
+14	Curl	0:42.6	2:50.2	10	18 kg	180 kg
+15	Curl	0:48.1	1:59.3	8	18 kg	144 kg
+16	Triceps Press-down	0:47.2	1:59.7	15	14 kg	210 kg
+17	Triceps Press-down	0:36.3	2:06.9	10	18 kg	180 kg
+18	Triceps Press-down	0:40.4	0:24.2	10	18 kg	180 kg

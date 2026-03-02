@@ -1,0 +1,9 @@
+Set	Exercise Name	Time	Rest	Reps	Weight	Volume
+1	Incline Barbell Bench Press	1:41.7	1:39.6	5	9 kg	45 kg
+2	Incline Barbell Bench Press	1:05.1	2:50.8	12	4.5 kg	54 kg
+3	Incline Barbell Bench Press	1:06.5	3:01.0	12	4.5 kg	54 kg
+4	Incline Barbell Bench Press	1:26.5	2:29.2	12	4.5 kg	54 kg
+5	Incline Barbell Bench Press	1:43.7	2:23.1	15	4.5 kg	67.5 kg
+6	Shoulder Press	0:47.1	2:16.5	8	4.5 kg	36 kg
+7	Shoulder Press	1:05.3	2:16.4	8	4.5 kg	36 kg
+8	Shoulder Press	1:29.2	0:23.2	5	4.5 kg	22.5 kg

@@ -1,0 +1,15 @@
+Set	Exercise Name	Time	Rest	Reps	Weight	Volume
+1	Hanging Leg Raise	0:42.0	2:14.4	8	Bodyweight	Bodyweight
+2	Hanging Leg Raise	1:00.4	3:14.3	10	Bodyweight	Bodyweight
+3	Hanging Leg Raise	1:07.0	3:36.3	10	Bodyweight	Bodyweight
+4	Band-assisted Chin-up	1:11.4	2:38.0	10	Bodyweight	Bodyweight
+5	Band-assisted Chin-up	1:17.8	2:28.4	10	Bodyweight	Bodyweight
+6	Band-assisted Chin-up	1:14.4	2:08.8	10	Bodyweight	Bodyweight
+7	Seated Cable Row	0:51.5	2:22.9	10	23 kg	230 kg
+8	Seated Cable Row	0:54.5	2:28.2	10	23 kg	230 kg
+9	Seated Cable Row	1:03.3	3:33.1	12	23 kg	276 kg
+10	Weighted GHD Back Extensions	1:15.8	1:32.3	15	23 kg	345 kg
+11	Weighted GHD Back Extensions	1:16.7	2:17.1	15	27 kg	405 kg
+12	Weighted GHD Back Extensions	1:19.3	2:03.1	15	32 kg	480 kg
+13	Weighted GHD Back Extensions	1:03.3	2:01.6	12	36 kg	432 kg
+14	Weighted GHD Back Extensions	1:00.4	0:23.6	12	41 kg	492 kg

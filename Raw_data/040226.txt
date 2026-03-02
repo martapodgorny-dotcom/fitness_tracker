@@ -1,0 +1,16 @@
+Set	Exercise Name	Time	Rest	Reps	Weight	Volume
+1	Lat Pull-down	2:25.2	0:54.4	10	23 kg	230 kg
+2	Seated Cable Row	0:44.2	1:00.2	8	25 kg	200 kg
+3	Lat Pull-down	1:04.2	0:59.3	10	25 kg	250 kg
+4	Seated Cable Row	0:46.0	0:55.7	8	25 kg	200 kg
+5	Lat Pull-down	0:57.9	0:58.0	8	25 kg	200 kg
+6	Seated Cable Row	0:45.5	1:21.8	8	25 kg	200 kg
+7	Leg Press	0:50.0	1:00.3	12	40 kg	480 kg
+8	Leg Press	0:49.5	0:55.2	12	42 kg	504 kg
+9	Leg Press	0:49.2	1:00.5	12	42 kg	504 kg
+10	Leg Press	0:48.3	1:01.1	12	42 kg	504 kg
+11	Leg Press	0:48.0	2:55.4	12	42 kg	504 kg
+12	Weighted Abs Jabs	0:57.6	1:00.4	10	20 kg	200 kg
+13	Weighted Abs Jabs	0:47.9	0:59.5	10	23 kg	230 kg
+14	Weighted Abs Jabs	0:56.0	0:33.3	10	23 kg	230 kg
+15	Weighted Abs Jabs	1:01.3	0:07.3	10	23 kg	230 kg
