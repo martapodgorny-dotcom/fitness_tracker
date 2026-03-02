@@ -125,7 +125,7 @@ max_weights = df.groupby("Exercise")["Weight"].max()
 progress_df = pd.DataFrame({
     "Last Weight": last_weights,
     "Max Weight": max_weights
-}).sort_values("Max Weight", ascending=False)
+}).sort_index()   # ← alphabetical
 
 st.dataframe(progress_df)
 
@@ -152,33 +152,39 @@ volume_group = df.groupby("Body Group")["Volume"].sum()
 st.bar_chart(volume_group)
 
 # ===============================
-# RECOMMENDATIONS
+# RECOMMENDATIONS (IMPROVED)
 # ===============================
 
 st.subheader("Exercise Recommendation")
 
 latest_date = df["Date"].max()
 last_workout = df[df["Date"] == latest_date]
-
 last_exercises = last_workout["Exercise"].unique()
-last_body_groups = last_workout["Body Group"].unique()
 
-recommend_df = df[
-    (~df["Exercise"].isin(last_exercises)) &
-    (~df["Body Group"].isin(last_body_groups))
-]
+# Remove only exercises from last workout
+candidate_df = df[~df["Exercise"].isin(last_exercises)]
 
-if recommend_df.empty:
-    st.warning("No recommendation available — all muscle groups were trained last session.")
+if candidate_df.empty:
+    st.warning("No recommendation available — every exercise was in last workout.")
 else:
-    recommendation = (
-        recommend_df.groupby("Exercise")["Weight"]
-        .mean()
-        .sort_values(ascending=False)
+    # Prefer exercises not done recently
+    last_done = (
+        df.sort_values("Date")
+          .groupby("Exercise")["Date"]
+          .max()
+    )
+
+    recommendation_df = (
+        candidate_df.groupby("Exercise")
+        .agg({
+            "Weight": "mean",
+            "Date": "max"
+        })
+        .join(last_done.rename("Last Performed"), on="Exercise")
+        .sort_values("Last Performed")  # older first
         .head(3)
-        .index.tolist()
     )
 
     st.success("Recommended for today:")
-    for ex in recommendation:
+    for ex in recommendation_df.index:
         st.write("•", ex)
