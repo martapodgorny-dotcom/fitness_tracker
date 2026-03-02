@@ -5,7 +5,6 @@ from pathlib import Path
 from datetime import datetime
 
 st.set_page_config(page_title="Workout Tracker", layout="wide")
-
 st.title("🏋️ Workout Tracker")
 
 # ===============================
@@ -18,7 +17,7 @@ with open(BODY_GROUPS_FILE, "r") as f:
     body_groups = json.load(f)
 
 # ===============================
-# LOAD ALL TXT FILES FROM FOLDER
+# LOAD ALL TXT FILES
 # ===============================
 
 DATA_FOLDER = Path("Raw_data")
@@ -43,23 +42,40 @@ for file in txt_files:
 
         df_list.append(df)
 
-    except Exception as e:
+    except Exception:
         st.warning(f"Skipping {file.name} due to error.")
+
+if not df_list:
+    st.error("No valid workout files found.")
+    st.stop()
 
 df = pd.concat(df_list, ignore_index=True)
 
 # ===============================
-# CLEAN DATA
+# CLEAN NUMERIC COLUMNS SAFELY
 # ===============================
 
-df["Weight"] = df["Weight"].str.replace(" kg", "").astype(float)
-df["Volume"] = df["Volume"].str.replace(" kg", "").astype(float)
+def clean_kg_column(series):
+    return pd.to_numeric(
+        series.astype(str)
+        .str.replace("kg", "", regex=False)
+        .str.replace(" ", "", regex=False)
+        .str.strip(),
+        errors="coerce"
+    )
+
+df["Weight"] = clean_kg_column(df["Weight"])
+df["Volume"] = clean_kg_column(df["Volume"])
+
+# ===============================
+# ASSIGN BODY GROUPS
+# ===============================
 
 df["Body Group"] = df["Exercise"].map(body_groups)
 df["Body Group"] = df["Body Group"].fillna("unknown")
 
 # ===============================
-# SHOW BASIC STATS
+# BASIC STATS
 # ===============================
 
 st.subheader("Workout Summary")
@@ -68,7 +84,7 @@ col1, col2, col3 = st.columns(3)
 
 col1.metric("Total Workouts", df["Date"].nunique())
 col2.metric("Total Exercises", df["Exercise"].nunique())
-col3.metric("Total Volume", int(df["Volume"].sum()))
+col3.metric("Total Volume", int(df["Volume"].sum(skipna=True)))
 
 # ===============================
 # VOLUME PER BODY GROUP
@@ -95,10 +111,6 @@ last_workout = df[df["Date"] == latest_date]
 
 last_exercises = last_workout["Exercise"].unique()
 last_body_groups = last_workout["Body Group"].unique()
-
-# Avoid:
-# - Exercises from last workout
-# - Body groups trained last workout
 
 recommend_df = df[
     (~df["Exercise"].isin(last_exercises)) &
