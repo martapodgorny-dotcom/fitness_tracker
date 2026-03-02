@@ -1,225 +1,190 @@
 import streamlit as st
 import pandas as pd
-import os
-import re
 import json
-import xml.etree.ElementTree as ET
+from pathlib import Path
 from datetime import datetime
-from collections import defaultdict
 
-# =============================
-# CONFIG
-# =============================
+st.set_page_config(page_title="Workout Tracker", layout="wide")
+st.title("🏋️ Workout Tracker")
 
-RAW_DATA_FOLDER = "Raw_data"
-CARDIO_FOLDER = "Cardio_data"
-BODY_GROUP_FILE = "body_groups.json"
+# ===============================
+# LOAD BODY GROUP LIBRARY
+# ===============================
 
-st.set_page_config(layout="wide")
-st.title("🏋️ Fitness Tracker Dashboard")
-
-# =============================
-# LOAD BODY GROUPS
-# =============================
-
-with open(BODY_GROUP_FILE, "r") as f:
+with open("body_groups.json", "r") as f:
     body_groups = json.load(f)
 
-# =============================
-# PARSE DATE FROM FILENAME
-# =============================
+# ===============================
+# LOAD DATA FILES
+# ===============================
+
+DATA_FOLDER = Path("Raw_data")
+txt_files = sorted(DATA_FOLDER.glob("*.txt"))
+
+if not txt_files:
+    st.warning("No workout files found.")
+    st.stop()
+
+df_list = []
 
 def parse_date_from_filename(filename):
-    match = re.match(r"(\d{6})", filename)
-    if not match:
-        return None
-    date_str = match.group(1)
-    return datetime.strptime(date_str, "%d%m%y")
+    name = filename.stem
+    
+    # Try strict DDMMYY
+    try:
+        return datetime.strptime(name, "%d%m%y")
+    except:
+        pass
+    
+    # Try without leading zero (e.g. 20226 for 2 Feb 26)
+    try:
+        if len(name) == 5:
+            day = int(name[0])
+            month = int(name[1:3])
+            year = int("20" + name[3:])
+            return datetime(year, month, day)
+    except:
+        pass
 
-# =============================
-# LOAD STRENGTH DATA
-# =============================
+    return None
 
-strength_data = []
+for file in txt_files:
+    try:
+        df = pd.read_csv(file, sep="\t")
+        df.columns = df.columns.str.strip()
 
-for file in os.listdir(RAW_DATA_FOLDER):
-    if file.endswith(".txt"):
-        filepath = os.path.join(RAW_DATA_FOLDER, file)
-        date = parse_date_from_filename(file)
+        workout_date = parse_date_from_filename(file)
 
-        df = pd.read_csv(filepath, sep="\t")
+        if workout_date is None:
+            st.warning(f"Could not parse date from {file.name}")
+            continue
 
-        df["Weight"] = (
-            df["Weight"]
-            .astype(str)
-            .str.replace(" kg", "", regex=False)
-            .str.replace(",", ".", regex=False)
-        )
+        df["Date"] = workout_date
+        df.rename(columns={"Exercise Name": "Exercise"}, inplace=True)
+        df_list.append(df)
 
-        df["Weight"] = pd.to_numeric(df["Weight"], errors="coerce")
+    except Exception:
+        st.warning(f"Skipping {file.name}")
 
-        df["Date"] = date
-        strength_data.append(df)
+if not df_list:
+    st.error("No valid workout data.")
+    st.stop()
 
-if strength_data:
-    strength_df = pd.concat(strength_data, ignore_index=True)
-else:
-    strength_df = pd.DataFrame()
+df = pd.concat(df_list, ignore_index=True)
 
-# =============================
-# STRENGTH SUMMARY
-# =============================
+# ===============================
+# CLEAN NUMERIC COLUMNS
+# ===============================
 
-st.header("📊 Strength Overview")
-
-if not strength_df.empty:
-
-    max_weights = (
-        strength_df.groupby("Exercise Name")["Weight"]
-        .max()
-        .reset_index()
-        .sort_values("Exercise Name")
+def clean_kg(series):
+    return pd.to_numeric(
+        series.astype(str)
+        .str.replace("kg", "", regex=False)
+        .str.replace(" ", "", regex=False),
+        errors="coerce"
     )
 
-    st.subheader("🏋️ Max Weight Per Exercise")
-    st.dataframe(max_weights)
+df["Weight"] = clean_kg(df["Weight"])
+df["Volume"] = clean_kg(df["Volume"])
 
-    # Last workout
-    last_date = strength_df["Date"].max()
-    last_workout = strength_df[strength_df["Date"] == last_date]
+df["Body Group"] = df["Exercise"].map(body_groups).fillna("unknown")
 
-    trained_groups_last = set(
-        body_groups.get(ex, "Unknown")
-        for ex in last_workout["Exercise Name"].unique()
+# ===============================
+# DEBUG DATE CHECK
+# ===============================
+
+st.write("Detected workout dates:")
+st.write(sorted(df["Date"].unique()))
+
+# ===============================
+# WORKOUT SUMMARY
+# ===============================
+
+st.subheader("Workout Summary")
+
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Workouts", df["Date"].nunique())
+col2.metric("Total Exercises", df["Exercise"].nunique())
+col3.metric("Total Volume", int(df["Volume"].sum(skipna=True)))
+
+# ===============================
+# TABLE: LAST & MAX WEIGHT
+# ===============================
+
+st.subheader("Exercise Progress")
+
+last_weights = (
+    df.sort_values("Date")
+      .groupby("Exercise")
+      .tail(1)
+      .set_index("Exercise")["Weight"]
+)
+
+max_weights = df.groupby("Exercise")["Weight"].max()
+
+progress_df = pd.DataFrame({
+    "Last Weight": last_weights,
+    "Max Weight": max_weights
+}).sort_index()   # ← alphabetical
+
+st.dataframe(progress_df)
+
+# ===============================
+# STATS PER BODY GROUP
+# ===============================
+
+st.subheader("Body Group Statistics")
+
+group_stats = df.groupby("Body Group").agg({
+    "Weight": "mean",
+    "Reps": "sum",
+    "Exercise": "count"
+}).rename(columns={
+    "Weight": "Average Weight",
+    "Reps": "Total Reps",
+    "Exercise": "Total Sets"
+})
+
+st.dataframe(group_stats)
+
+st.subheader("Volume per Body Group")
+volume_group = df.groupby("Body Group")["Volume"].sum()
+st.bar_chart(volume_group)
+
+# ===============================
+# RECOMMENDATIONS (IMPROVED)
+# ===============================
+
+st.subheader("Exercise Recommendation")
+
+latest_date = df["Date"].max()
+last_workout = df[df["Date"] == latest_date]
+last_exercises = last_workout["Exercise"].unique()
+
+# Remove only exercises from last workout
+candidate_df = df[~df["Exercise"].isin(last_exercises)]
+
+if candidate_df.empty:
+    st.warning("No recommendation available — every exercise was in last workout.")
+else:
+    # Prefer exercises not done recently
+    last_done = (
+        df.sort_values("Date")
+          .groupby("Exercise")["Date"]
+          .max()
     )
 
-    # Balanced recommendation
-    group_counts = defaultdict(int)
+    recommendation_df = (
+        candidate_df.groupby("Exercise")
+        .agg({
+            "Weight": "mean",
+            "Date": "max"
+        })
+        .join(last_done.rename("Last Performed"), on="Exercise")
+        .sort_values("Last Performed")  # older first
+        .head(3)
+    )
 
-    for ex in strength_df["Exercise Name"].unique():
-        group = body_groups.get(ex, "Unknown")
-        group_counts[group] += 1
-
-    sorted_groups = sorted(group_counts.items(), key=lambda x: x[1])
-
-    recommended = []
-
-    for group, _ in sorted_groups:
-        if group not in trained_groups_last:
-            for ex, g in body_groups.items():
-                if g == group:
-                    recommended.append(ex)
-                    break
-        if len(recommended) == 5:
-            break
-
-    st.subheader("💡 Exercise Recommendation")
-
-    if recommended:
-        for ex in recommended:
-            st.write("•", ex)
-    else:
-        st.write("All muscle groups were trained last session.")
-
-# =============================
-# CARDIO PARSING (EFFICIENT)
-# =============================
-
-def parse_tcx(filepath, activity_type):
-    duration = 0
-    distance = 0
-    calories = 0
-    hr_values = []
-    start_time = None
-
-    for event, elem in ET.iterparse(filepath, events=("end",)):
-        tag = elem.tag.split("}")[-1]
-
-        if tag == "Id" and start_time is None:
-            start_time = datetime.fromisoformat(elem.text.replace("Z", "+00:00"))
-
-        elif tag == "TotalTimeSeconds":
-            duration += float(elem.text)
-
-        elif tag == "DistanceMeters":
-            distance += float(elem.text)
-
-        elif tag == "Calories":
-            calories += float(elem.text)
-
-        elif tag == "Value":  # HR
-            try:
-                hr_values.append(int(elem.text))
-            except:
-                pass
-
-        elem.clear()
-
-    avg_hr = sum(hr_values) / len(hr_values) if hr_values else None
-    max_hr = max(hr_values) if hr_values else None
-
-    pace = None
-    if distance > 0:
-        pace = (duration / 60) / (distance / 1000)
-
-    return {
-        "Date": start_time,
-        "Activity": activity_type,
-        "Duration_min": duration / 60,
-        "Distance_km": distance / 1000,
-        "Calories": calories,
-        "Avg_HR": avg_hr,
-        "Max_HR": max_hr,
-        "Pace_min_per_km": pace,
-    }
-
-# =============================
-# LOAD CARDIO DATA
-# =============================
-
-cardio_records = []
-
-for activity_type in ["running", "swimming", "walking"]:
-    activity_path = os.path.join(CARDIO_FOLDER, activity_type)
-
-    if os.path.exists(activity_path):
-        for file in os.listdir(activity_path):
-            if file.endswith(".tcx"):
-                filepath = os.path.join(activity_path, file)
-                try:
-                    record = parse_tcx(filepath, activity_type.capitalize())
-                    cardio_records.append(record)
-                except:
-                    pass
-
-if cardio_records:
-    cardio_df = pd.DataFrame(cardio_records)
-else:
-    cardio_df = pd.DataFrame()
-
-# =============================
-# CARDIO DASHBOARD
-# =============================
-
-st.header("🏃 Cardio Overview")
-
-if not cardio_df.empty:
-
-    cardio_df = cardio_df.sort_values("Date")
-
-    st.subheader("📋 All Cardio Sessions")
-    st.dataframe(cardio_df)
-
-    st.subheader("📈 Weekly Distance")
-
-    cardio_df["Week"] = cardio_df["Date"].dt.isocalendar().week
-    weekly = cardio_df.groupby("Week")["Distance_km"].sum()
-
-    st.bar_chart(weekly)
-
-    st.subheader("⏱ Weekly Duration (min)")
-    weekly_time = cardio_df.groupby("Week")["Duration_min"].sum()
-    st.bar_chart(weekly_time)
-
-else:
-    st.write("No cardio data found.")
+    st.success("Recommended for today:")
+    for ex in recommendation_df.index:
+        st.write("•", ex)
