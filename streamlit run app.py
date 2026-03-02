@@ -11,97 +11,148 @@ st.title("🏋️ Workout Tracker")
 # LOAD BODY GROUP LIBRARY
 # ===============================
 
-BODY_GROUPS_FILE = "body_groups.json"
-
-with open(BODY_GROUPS_FILE, "r") as f:
+with open("body_groups.json", "r") as f:
     body_groups = json.load(f)
 
 # ===============================
-# LOAD ALL TXT FILES
+# LOAD DATA FILES
 # ===============================
 
 DATA_FOLDER = Path("Raw_data")
 txt_files = sorted(DATA_FOLDER.glob("*.txt"))
 
 if not txt_files:
-    st.warning("No workout files found in Raw_data folder.")
+    st.warning("No workout files found.")
     st.stop()
 
 df_list = []
+
+def parse_date_from_filename(filename):
+    name = filename.stem
+    
+    # Try strict DDMMYY
+    try:
+        return datetime.strptime(name, "%d%m%y")
+    except:
+        pass
+    
+    # Try without leading zero (e.g. 20226 for 2 Feb 26)
+    try:
+        if len(name) == 5:
+            day = int(name[0])
+            month = int(name[1:3])
+            year = int("20" + name[3:])
+            return datetime(year, month, day)
+    except:
+        pass
+
+    return None
 
 for file in txt_files:
     try:
         df = pd.read_csv(file, sep="\t")
         df.columns = df.columns.str.strip()
 
-        # Extract date from filename (ddmmyy)
-        workout_date = datetime.strptime(file.stem, "%d%m%y")
+        workout_date = parse_date_from_filename(file)
+
+        if workout_date is None:
+            st.warning(f"Could not parse date from {file.name}")
+            continue
+
         df["Date"] = workout_date
-
         df.rename(columns={"Exercise Name": "Exercise"}, inplace=True)
-
         df_list.append(df)
 
     except Exception:
-        st.warning(f"Skipping {file.name} due to error.")
+        st.warning(f"Skipping {file.name}")
 
 if not df_list:
-    st.error("No valid workout files found.")
+    st.error("No valid workout data.")
     st.stop()
 
 df = pd.concat(df_list, ignore_index=True)
 
 # ===============================
-# CLEAN NUMERIC COLUMNS SAFELY
+# CLEAN NUMERIC COLUMNS
 # ===============================
 
-def clean_kg_column(series):
+def clean_kg(series):
     return pd.to_numeric(
         series.astype(str)
         .str.replace("kg", "", regex=False)
-        .str.replace(" ", "", regex=False)
-        .str.strip(),
+        .str.replace(" ", "", regex=False),
         errors="coerce"
     )
 
-df["Weight"] = clean_kg_column(df["Weight"])
-df["Volume"] = clean_kg_column(df["Volume"])
+df["Weight"] = clean_kg(df["Weight"])
+df["Volume"] = clean_kg(df["Volume"])
+
+df["Body Group"] = df["Exercise"].map(body_groups).fillna("unknown")
 
 # ===============================
-# ASSIGN BODY GROUPS
+# DEBUG DATE CHECK
 # ===============================
 
-df["Body Group"] = df["Exercise"].map(body_groups)
-df["Body Group"] = df["Body Group"].fillna("unknown")
+st.write("Detected workout dates:")
+st.write(sorted(df["Date"].unique()))
 
 # ===============================
-# BASIC STATS
+# WORKOUT SUMMARY
 # ===============================
 
 st.subheader("Workout Summary")
 
 col1, col2, col3 = st.columns(3)
-
 col1.metric("Total Workouts", df["Date"].nunique())
 col2.metric("Total Exercises", df["Exercise"].nunique())
 col3.metric("Total Volume", int(df["Volume"].sum(skipna=True)))
 
 # ===============================
-# VOLUME PER BODY GROUP
+# TABLE: LAST & MAX WEIGHT
 # ===============================
 
-st.subheader("Volume per Body Group")
+st.subheader("Exercise Progress")
 
-volume_group = (
-    df.groupby("Body Group")["Volume"]
-    .sum()
-    .sort_values(ascending=False)
+last_weights = (
+    df.sort_values("Date")
+      .groupby("Exercise")
+      .tail(1)
+      .set_index("Exercise")["Weight"]
 )
 
+max_weights = df.groupby("Exercise")["Weight"].max()
+
+progress_df = pd.DataFrame({
+    "Last Weight": last_weights,
+    "Max Weight": max_weights
+}).sort_values("Max Weight", ascending=False)
+
+st.dataframe(progress_df)
+
+# ===============================
+# STATS PER BODY GROUP
+# ===============================
+
+st.subheader("Body Group Statistics")
+
+group_stats = df.groupby("Body Group").agg({
+    "Weight": "mean",
+    "Reps": "sum",
+    "Exercise": "count"
+}).rename(columns={
+    "Weight": "Average Weight",
+    "Reps": "Total Reps",
+    "Exercise": "Total Sets"
+})
+
+st.dataframe(group_stats)
+
+st.subheader("Volume per Body Group")
+volume_group = df.groupby("Body Group")["Volume"].sum()
 st.bar_chart(volume_group)
 
 # ===============================
-# RECOMMENDATION SYSTEM
+# RECOMMENDATIONS
 # ===============================
 
 st.subheader("Exercise Recommendation")
@@ -118,10 +169,10 @@ recommend_df = df[
 ]
 
 if recommend_df.empty:
-    st.info("No recommendation available. You trained everything recently 💪")
+    st.warning("No recommendation available — all muscle groups were trained last session.")
 else:
     recommendation = (
-        recommend_df.groupby("Exercise")["Volume"]
+        recommend_df.groupby("Exercise")["Weight"]
         .mean()
         .sort_values(ascending=False)
         .head(3)
