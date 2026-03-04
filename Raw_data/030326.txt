@@ -1,0 +1,11 @@
+Set	Exercise Name	Time	Rest	Reps	Weight	Volume
+1	Chest Press with Band	1:32.5	2:46.2	15	18 kg	270 kg
+2	Chest Press with Band	1:21.6	4:48.9	15	18 kg	270 kg
+3	Chest Press with Band	1:00.9	5:40.1	12	23 kg	276 kg
+4	Chest Press with Band	1:05.6	5:01.1	12	23 kg	276 kg
+5	Seated Cable Row	0:24.2	2:28.2	12	42 kg	504 kg
+6	Seated Cable Row	1:03.0	3:14.3	12	42 kg	504 kg
+7	Seated Cable Row	0:55.4	5:23.8	9	47 kg	423 kg
+8	Shoulder Press	1:21.3	4:41.9	8	16 kg	128 kg
+9	Shoulder Press	0:48.8	4:18.8	8	16 kg	128 kg
+10	Shoulder Press	1:13.2	1:49.7	9	16 kg	144 kg
